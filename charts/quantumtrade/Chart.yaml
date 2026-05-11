@@ -1,0 +1,15 @@
+apiVersion: v2
+name: quantumtrade
+description: A Helm chart for QuantumTrade trading platform
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - trading
+  - algo
+  - ml
+  - finance
+maintainers:
+  - name: QuantumTrade Team
+    email: team@quantumtrade.io
+home: https://quantumtrade.io

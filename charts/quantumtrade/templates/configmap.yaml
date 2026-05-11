@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "quantumtrade.fullname" . }}-config
+  labels:
+    {{- include "quantumtrade.labels" . | nindent 4 }}
+data:
+  LOG_LEVEL: {{ .Values.config.logLevel | default "info" }}
+  ENVIRONMENT: {{ .Values.config.environment | default "production" }}
+  TRADING_ENABLED: {{ .Values.config.tradingEnabled | quote }}
+  POSTGRES_HOST: {{ include "quantumtrade.fullname" . }}-postgres
+  POSTGRES_PORT: "{{ .Values.postgres.port }}"
+  REDIS_HOST: {{ include "quantumtrade.fullname" . }}-redis
+  REDIS_PORT: "{{ .Values.redis.port }}"
+  MLFLOW_HOST: {{ include "quantumtrade.fullname" . }}-mlflow
+  MLFLOW_PORT: "{{ .Values.mlflow.port }}"

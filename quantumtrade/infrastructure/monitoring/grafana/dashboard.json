@@ -1,0 +1,457 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "QuantumTrade System Overview",
+    "tags": ["quantumtrade", "trading", "monitoring"],
+    "timezone": "browser",
+    "schemaVersion": 30,
+    "version": 1,
+    "refresh": "15s",
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "System Overview",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+        "targets": [
+          {"expr": "quantumtrade_app_uptime_seconds", "legendFormat": "Uptime (s)"}
+        ],
+        "fieldConfig": {
+          "defaults": {"unit": "s"}
+        }
+      },
+      {
+        "id": 2,
+        "title": "Active Positions",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+        "targets": [
+          {"expr": "quantumtrade_active_positions_count", "legendFormat": "Count"}
+        ],
+        "fieldConfig": {
+          "defaults": {"unit": "short"}
+        }
+      },
+      {
+        "id": 3,
+        "title": "Portfolio Value",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+        "targets": [
+          {"expr": "quantumtrade_portfolio_value_usd", "legendFormat": "Value"}
+        ],
+        "fieldConfig": {
+          "defaults": {"unit": "currencyUSD"}
+        }
+      },
+      {
+        "id": 4,
+        "title": "Daily P&L",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+        "targets": [
+          {"expr": "quantumtrade_daily_pnl_usd", "legendFormat": "P&L"}
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"value": -100000, "color": "red"},
+                {"value": 0, "color": "yellow"},
+                {"value": 100, "color": "green"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 10,
+        "title": "Ticks per Second",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "targets": [
+          {
+            "expr": "rate(quantumtrade_trading_ticks_total[1m])",
+            "legendFormat": "{{symbol}} - {{outcome}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "pps"
+          }
+        },
+        "yaxes": [
+          {"label": "ticks/s", "format": "short"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Tick Duration (p95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(quantumtrade_trading_tick_duration_seconds_bucket[5m]))",
+            "legendFormat": "p95"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(quantumtrade_trading_tick_duration_seconds_bucket[5m]))",
+            "legendFormat": "p50"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        },
+        "yaxes": [
+          {"label": "seconds", "format": "s"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 20,
+        "title": "Order Fill Rate",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+        "targets": [
+          {
+            "expr": "quantumtrade_fill_rate_percent",
+            "legendFormat": "{{broker}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent"
+          }
+        },
+        "yaxes": [
+          {"label": "fill rate %", "format": "percent"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 21,
+        "title": "Order Latency (p99)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.99, rate(quantumtrade_order_latency_seconds_bucket[5m]))",
+            "legendFormat": "{{broker}} - {{stage}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        },
+        "yaxes": [
+          {"label": "seconds", "format": "s"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 30,
+        "title": "Signal Distribution by Strategy",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+        "targets": [
+          {
+            "expr": "rate(quantumtrade_signals_generated_total[1m])",
+            "legendFormat": "{{strategy}} - {{signal_type}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "pps"
+          }
+        },
+        "yaxes": [
+          {"label": "signals/s", "format": "short"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 31,
+        "title": "Strategy Win Rate",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+        "targets": [
+          {
+            "expr": "quantumtrade_strategy_win_rate",
+            "legendFormat": "{{strategy}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        },
+        "yaxes": [
+          {"label": "win rate %", "format": "percent"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 40,
+        "title": "Risk: VaR & Drawdown",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 28},
+        "targets": [
+          {
+            "expr": "quantumtrade_portfolio_var_95",
+            "legendFormat": "VaR 95%"
+          },
+          {
+            "expr": "quantumtrade_portfolio_var_99",
+            "legendFormat": "VaR 99%"
+          },
+          {
+            "expr": "quantumtrade_max_drawdown_percent * -1",
+            "legendFormat": "Max Drawdown"
+          },
+          {
+            "expr": "quantumtrade_current_drawdown_percent * -1",
+            "legendFormat": "Current Drawdown"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent"
+          }
+        },
+        "yaxes": [
+          {"label": "percentage", "format": "percent"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 41,
+        "title": "Position Concentration",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 28},
+        "targets": [
+          {
+            "expr": "quantumtrade_position_concentration_ratio",
+            "legendFormat": "Top 5 / Total"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 1
+          }
+        },
+        "yaxes": [
+          {"label": "concentration ratio", "format": "percent"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 50,
+        "title": "Broker Connection Status",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 36},
+        "targets": [
+          {
+            "expr": "quantumtrade_broker_connection_status",
+            "legendFormat": "{{broker}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 1, "color": "green"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 51,
+        "title": "Broker API Latency (p99)",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 36},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.99, rate(quantumtrade_broker_api_latency_seconds_bucket[5m]))",
+            "legendFormat": "{{broker}} - {{endpoint}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "decimals": 3
+          }
+        }
+      },
+      {
+        "id": 52,
+        "title": "API Rate Limit Remaining",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 40},
+        "targets": [
+          {
+            "expr": "quantumtrade_broker_rate_limit_remaining",
+            "legendFormat": "{{broker}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "yaxes": [
+          {"label": "remaining calls", "format": "short"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 60,
+        "title": "Database Query Duration (p95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 40},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(quantumtrade_db_query_duration_seconds_bucket[5m]))",
+            "legendFormat": "{{query_type}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        },
+        "yaxes": [
+          {"label": "seconds", "format": "s"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 61,
+        "title": "DB Connections",
+        "type": "graph",
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 36},
+        "targets": [
+          {
+            "expr": "quantumtrade_db_connections_active",
+            "legendFormat": "Active"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "yaxes": [
+          {"label": "connections", "format": "short"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 70,
+        "title": "Message Bus Lag",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 48},
+        "targets": [
+          {
+            "expr": "quantumtrade_consumer_lag",
+            "legendFormat": "{{stream}} - {{consumer_group}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "yaxes": [
+          {"label": "messages pending", "format": "short"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 71,
+        "title": "Events Published vs Consumed",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 48},
+        "targets": [
+          {
+            "expr": "rate(quantumtrade_events_published_total[1m])",
+            "legendFormat": "published: {{event_type}}"
+          },
+          {
+            "expr": "rate(quantumtrade_events_consumed_total[1m])",
+            "legendFormat": "consumed: {{event_type}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "pps"
+          }
+        },
+        "yaxes": [
+          {"label": "events/s", "format": "short"},
+          {"format": "short"}
+        ]
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "symbol",
+          "label": "Symbol",
+          "type": "query",
+          "datasource": "Prometheus",
+          "query": "label_values(quantumtrade_trading_ticks_total, symbol)",
+          "includeAll": true,
+          "multi": true
+        },
+        {
+          "name": "strategy",
+          "label": "Strategy",
+          "type": "query",
+          "datasource": "Prometheus",
+          "query": "label_values(quantumtrade_signals_generated_total, strategy)",
+          "includeAll": true,
+          "multi": true
+        },
+        {
+          "name": "broker",
+          "label": "Broker",
+          "type": "query",
+          "datasource": "Prometheus",
+          "query": "label_values(quantumtrade_broker_connection_status, broker)",
+          "includeAll": true,
+          "multi": true
+        }
+      ]
+    },
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "enable": true,
+          "name": "Annotations & Alerts"
+        }
+      ]
+    }
+  },
+  "overwrite": true
+}

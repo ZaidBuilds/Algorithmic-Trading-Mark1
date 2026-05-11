@@ -1,0 +1,112 @@
+replicaCount:
+  tradingbot: 2
+  modelServing: 2
+  mlflow: 1
+  postgres: 1
+  redis: 1
+
+image:
+  repository: quantumtrade
+  tag: latest
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+namespace:
+  create: true
+  name: quantumtrade
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+secrets:
+  create: true
+  dbPassword: quantumtrade123
+  redisPassword: quantumtrade123
+  jwtSecret: quantumtrade-jwt-secret
+  apiKey: quantumtrade-api-key
+  mlflowSecret: quantumtrade-mlflow-secret
+
+config:
+  logLevel: info
+  environment: production
+  tradingEnabled: true
+
+postgres:
+  enabled: true
+  image: postgres:15
+  port: 5432
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: ""
+
+redis:
+  enabled: true
+  image: redis:7-alpine
+  port: 6379
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: ""
+
+mlflow:
+  enabled: true
+  port: 5000
+  artifactPath: /mlflow/artifacts
+
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    port: 9090
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+      scrapeTimeout: 10s
+  grafana:
+    enabled: true
+    port: 3000
+    adminPassword: admin
+  jaeger:
+    enabled: true
+    port: 14268
+  alertmanager:
+    enabled: true
+    port: 9093
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: quantumtrade.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80

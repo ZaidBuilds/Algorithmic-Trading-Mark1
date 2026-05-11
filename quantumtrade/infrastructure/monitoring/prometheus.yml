@@ -1,0 +1,52 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'quantumtrade'
+    environment: 'production'
+
+# Alertmanager configuration (optional for Phase 2)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # ─── QuantumTrade Application Metrics ─────────────────────────────
+  - job_name: 'quantumtrade'
+    static_configs:
+      - targets: ['host.docker.internal:8000', 'localhost:8000']
+        labels:
+          service: 'trading-engine'
+          component: 'application'
+
+    # Scrape every 15 seconds (matches global)
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+    # Metric relabeling to strip unwanted labels
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'python_*'
+        action: keep  # Keep Python process metrics
+
+  # ─── Redis Metrics (via redis-exporter) ────────────────────────────
+  # Optional: Add redis exporter for Redis internals
+  # - job_name: 'redis'
+  #   static_configs:
+  #     - targets: ['redis:9121']
+
+  # ─── PostgreSQL Metrics (via postgres-exporter) ─────────────────
+  # Optional: Add postgres exporter for DB metrics
+  # - job_name: 'postgres'
+  #   static_configs:
+  #     - targets: ['postgres:9187']
+
+# Remote write (optional for long-term storage)
+# remote_write:
+#   - url: "http://prometheus-remote-storage:8080/api/v1/write"

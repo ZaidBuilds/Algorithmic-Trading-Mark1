@@ -1,0 +1,291 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# QuantumTrade — Project Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "quantumtrade"
+version = "1.0.0"
+description = "QuantumTrade — Algorithmic Trading System"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "yfinance>=0.2.28",
+    "ccxt>=4.0.0",
+    "alpaca-py>=0.21.0",
+    "python-binance>=1.0.19",
+    "scikit-learn>=1.3.0",
+    "mlflow>=2.9.0",
+    "scipy>=1.11.0",
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "aiohttp>=3.9.0",
+    "ta>=0.11.0",
+    "flask>=3.0.0",
+    "flask-cors>=4.0.0",
+    "PyQt5>=5.15.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0.0",
+    "requests>=2.31.0",
+    "python-telegram-bot>=21.0",
+    "schedule>=1.2.0",
+    "websocket-client>=1.6.0",
+    "sqlalchemy>=2.0.0",
+    "redis>=5.0.0",
+    "colorama>=0.4.6",
+    "structlog>=23.0.0",
+    "prometheus-client>=0.17.0",
+    "psutil>=5.9.0",
+    "opentelemetry-api>=1.20.0",
+    "opentelemetry-sdk>=1.20.0",
+    "opentelemetry-exporter-jaeger-thrift>=1.20.0",
+    "opentelemetry-instrumentation-logging>=1.20.0",
+    "opentelemetry-instrumentation-requests>=1.20.0",
+    "opentelemetry-instrumentation-redis>=1.20.0",
+    "opentelemetry-instrumentation-sqlalchemy>=1.20.0",
+    "opentelemetry-instrumentation-fastapi>=1.20.0",
+    "PyJWT>=2.9.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "mypy>=1.5.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+    "mypy>=1.5.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "isort>=5.12.0",
+    "pre-commit>=3.5.0",
+]
+
+[project.scripts]
+quantumtrade = "quantumtrade.main:main"
+qtrade = "run:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["quantumtrade*"]
+
+# ─── pytest configuration ─────────────────────────────────────────────────────
+
+[tool.pytest.ini_options]
+# Test discovery and paths
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Markers
+markers = [
+    "unit: Unit tests (fast, no external deps)",
+    "integration: Integration tests (multiple components)",
+    "slow: Slow-running tests",
+    "network: Tests requiring network access",
+]
+
+# Minimum pytest version
+minversion = "7.4"
+
+# Strict xfail
+xfail_strict = true
+
+# Filter warnings
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+    "error::pytest.PytestUnraisableExceptionWarning",
+    "error::pytest.PytestUnknownMarkWarning",
+]
+
+# Async mode (if using pytest-asyncio)
+# async_mode = "auto"
+
+# Coverage settings
+addopts = [
+    "--strict-markers",
+    "--tb=short",
+    "--no-header",
+    "-q",
+]
+
+# ─── coverage configuration ───────────────────────────────────────────────────
+
+[tool.coverage.run]
+source = ["quantumtrade", "config", "brokers", "execution", "risk", "portfolio", "strategies", "monitoring", "tracing", "ml"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/.venv/*",
+    "*/migrations/*",
+    "*/__init__.py",
+]
+branch = true
+relative_files = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "if typing.TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.",
+    "if 0:",
+    "if False:",
+    "if __name__ == '__main__':",
+    "pass",
+    "def __repr__",
+    "def __str__",
+    "def __hash__",
+    "self.assert",
+]
+show_missing = true
+precision = 2
+fail_under = 80
+
+[tool.coverage.html]
+directory = "htmlcov"
+title = "QuantumTrade Coverage Report"
+
+# ─── mypy configuration ───────────────────────────────────────────────────────
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+allow_redundant_defs = true
+allow_untyped_decorators = false
+allow_incomplete_defs = false
+namespace_packages = true
+explicit_package_bases = true
+ignore_missing_imports = false
+follow_imports = "normal"
+exclude = [
+    "tests/",
+    "htmlcov/",
+    ".venv/",
+    "__pycache__/",
+    ".git/",
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "numpy.*",
+    "pandas.*",
+    "yfinance.*",
+    "ccxt.*",
+    "mlflow.*",
+    "scipy.*",
+    "ta.*",
+    "scikit_learn.*",
+    "sklearn.*",
+    "telegram.*",
+    "opentelemetry.*",
+    "structlog.*",
+    "uvicorn.*",
+    "aiohttp.*",
+    "fastapi.*",
+    "pydantic.*",
+    "sqlalchemy.*",
+    "redis.*",
+    "PyQt5.*",
+    "PyQt6.*",
+    "pytest.*",
+    "hypothesis.*",
+    "requests.*",
+    "websocket.*",
+    "schedule.*",
+    "jwt.*",
+    "PyJWT.*",
+]
+ignore_missing_imports = true
+
+# ─── ruff configuration ───────────────────────────────────────────────────────
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "S",   # flake8-bandit
+    "A",   # flake8-builtins
+    "C4",  # flake8-comprehensions
+    "EM",  # flake8-errmsg
+    "ICN", # flake8-import-conventions
+    "G",   # flake8-logging-format
+    "PIE", # flake8-pie
+    "T20", # flake8-print
+    "PT",  # flake8-pytest-style
+    "Q",   # flake8-quotes
+    "RUF", # ruff-specific
+    "SIM", # flake8-simplify
+    "TID", # flake8-tidy-imports
+    "TC",  # flake8-type-checking
+    "ERA", # eradicate (commented-out code)
+    "RUF012", # Mutable class default
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # function calls in argument defaults (common in FastAPI/Flask)
+    "S101",   # assert allowed in tests
+    "S104",   # possible binding to all interfaces (intentional for dev)
+    "PT011",  # pytest.raises with too broad exception
+    "SIM105", # use contextlib.suppress (sometimes less readable)
+    "ERA001", # commented-out code (sometimes useful as TODO)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101",  # assert
+    "S106",  # hardcoded password
+    "FBT001",  # boolean positional args
+    "EM101",  # raw string in exception
+]
+"__init__.py" = ["F401", "F403"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["quantumtrade", "config", "brokers", "execution", "risk", "portfolio", "strategies"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+# ─── black configuration ──────────────────────────────────────────────────────
+
+[tool.black]
+line-length = 120
+target-version = ["py311"]
+include = '\.pyi?$'
+skip-string-normalization = true
+skip-magic-trailing-comma = false
+
+[tool.black.compatibility]
+# No specific compat settings needed for Python 3.11+

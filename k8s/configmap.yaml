@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tradingbot-config
+  namespace: tradingbot
+data:
+  POSTGRES_USER: quantum
+  POSTGRES_DB: quantumtrade
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  MLFLOW_HOST: mlflow
+  MLFLOW_PORT: "5000"
+  PROMETHEUS_HOST: prometheus
+  PROMETHEUS_PORT: "9090"
+  GRAFANA_HOST: grafana
+  GRAFANA_PORT: "3000"
+  JAEGER_HOST: jaeger
+  JAEGER_PORT: "14268"
+  TRADINGBOT_HOST: tradingbot
+  TRADINGBOT_PORT: "8080"
+  MODEL_SERVING_HOST: model-serving
+  MODEL_SERVING_PORT: "8001"
+  LOG_LEVEL: INFO
+  ENVIRONMENT: production

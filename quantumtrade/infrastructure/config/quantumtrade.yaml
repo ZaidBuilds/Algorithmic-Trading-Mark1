@@ -1,0 +1,83 @@
+# QuantumTrade MLOps Configuration
+# Model lifecycle management: registry, retraining, drift detection, serving
+
+mlops:
+  # MLflow Tracking
+  mlflow:
+    TRACKING_URI: "http://localhost:5000"
+    ARTIFACT_LOCATION: "./mlflow_artifacts"
+    EXPERIMENT_NAME: "quantumtrade_models"
+  
+  # Automated Retraining Pipeline
+  retraining:
+    ENABLED: true
+    SCHEDULE: "0 2 * * *"  # Daily at 2am UTC
+    MIN_SAMPLES: 1000
+    PERFORMANCE_THRESHOLD: 0.55  # Minimum accuracy
+    IMPROVEMENT_THRESHOLD: 0.02  # 2% improvement over production
+    CANARY_CAPITAL_PCT: 0.01     # 1% of portfolio
+    CANARY_DURATION_HOURS: 24    # 24 hours
+    PHASE2_CAPITAL_PCT: 0.05
+    PHASE2_DURATION_DAYS: 3
+    PHASE3_CAPITAL_PCT: 0.25
+    PHASE3_DURATION_DAYS: 7
+  
+  # Drift Detection
+  drift:
+    ENABLED: true
+    CHECK_INTERVAL_MINUTES: 60  # Check every hour
+    PSI_THRESHOLD: 0.2          # PSI > 0.2 = significant drift
+    KS_ALPHA: 0.05             # KS p-value < 0.05 = distribution shift
+    ACCURACY_DROP_THRESHOLD: 0.05  # 5% accuracy drop triggers alert
+    CONFIDENCE_DROP_THRESHOLD: 0.10 # 10% confidence drop
+    WINDOW_SIZE: 1000          # Sliding window size
+  
+  # Feature Store
+  feature_store:
+    BACKEND: "redis"           # redis | postgres | hybrid
+    TTL_SECONDS: 3600          # 1 hour cache
+    REDIS_KEYS_PREFIX: "features:"
+  
+  # Model Serving
+  serving:
+    HOST: "0.0.0.0"
+    PORT: 8001
+    WORKERS: 2
+    MODEL_CACHE_SIZE: 10
+    PREDICTION_CACHE_TTL: 60   # 1 minute
+
+
+# Multi-Exchange Configuration
+# Cross-exchange arbitrage and risk management settings
+multi_exchange:
+  ENABLED: false  # Set to true to enable multi-exchange trading
+  EXCHANGES:
+    - "alpaca"
+    - "binance"
+  PRIMARY_EXCHANGE: "alpaca"
+  
+  # Arbitrage Settings
+  arbitrage:
+    MIN_SPREAD_BPS: 5.0           # Minimum 5bps spread for arbitrage
+    MAX_POSITION_PER_EXCHANGE_PCT: 0.25  # Max 25% per exchange
+    TRIANGULAR_ARBITRAGE_ENABLED: false
+    MAX_TRIANGULAR_HOPS: 3
+    ARBITRAGE_TIMEOUT_MS: 500     # 500ms timeout for arbitrage execution
+    MIN_TRADE_SIZE_USD: 100.0     # Minimum $100 trade size
+  
+  # Risk Limits
+  risk_limits:
+    MAX_TOTAL_EXPOSURE_PCT: 1.0   # Max 100% total exposure
+    MAX_CORRELATION_RISK: 0.8     # Correlation threshold for diversification
+    EXCHANGE_FAILURE_BUFFER_PCT: 0.10  # 10% buffer for exchange outages
+    CROSS_EXCHANGE_FEE_BUFFER_BPS: 10.0  # 10bps fee buffer
+  
+  # Symbol Mappings (example for BTC trading across exchanges)
+  symbol_mappings:
+    - BASE_SYMBOL: "BTC"
+      EXCHANGE_SYMBOLS:
+        alpaca: "BTC/USD"
+        binance: "BTCUSDT"
+        coinbase: "BTC-USD"
+      PRICE_PRECISION: 2
+      QUANTITY_PRECISION: 6

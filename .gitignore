@@ -48,6 +48,7 @@ desktop.ini
 # ─────────────────────────────────────────────
 logs/
 results/
+data/
 *.log
 *.csv
 

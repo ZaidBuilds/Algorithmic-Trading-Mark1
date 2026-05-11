@@ -1,0 +1,16 @@
+# Grafana Dashboard Provisioning
+# Scans /etc/grafana/provisioning/dashboards for .json dashboard files
+
+apiVersion: 1
+
+providers:
+  - name: 'QuantumTrade Dashboards'
+    orgId: 1
+    folder: 'QuantumTrade'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false

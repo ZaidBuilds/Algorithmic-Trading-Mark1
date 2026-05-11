@@ -1,0 +1,155 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: tradingbot
+  labels:
+    app: postgres
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+  selector:
+    app: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: tradingbot
+  labels:
+    app: redis
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: redis
+  selector:
+    app: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow
+  namespace: tradingbot
+  labels:
+    app: mlflow
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5000
+      targetPort: 5000
+      name: mlflow
+  selector:
+    app: mlflow
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-serving
+  namespace: tradingbot
+  labels:
+    app: model-serving
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8001
+      targetPort: 8001
+      name: http
+  selector:
+    app: model-serving
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tradingbot
+  namespace: tradingbot
+  labels:
+    app: tradingbot
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+    - port: 8000
+      targetPort: 8000
+      name: api
+    - port: 9090
+      targetPort: 9090
+      name: metrics
+  selector:
+    app: tradingbot
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: tradingbot
+  labels:
+    app: prometheus
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9090
+      targetPort: 9090
+      name: prometheus
+  selector:
+    app: prometheus
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: tradingbot
+  labels:
+    app: grafana
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: grafana
+  selector:
+    app: grafana
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+  namespace: tradingbot
+  labels:
+    app: jaeger
+spec:
+  type: ClusterIP
+  ports:
+    - port: 16686
+      targetPort: 16686
+      name: ui
+    - port: 14268
+      targetPort: 14268
+      name: thrift
+    - port: 14250
+      targetPort: 14250
+      name: grpc
+  selector:
+    app: jaeger
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager
+  namespace: tradingbot
+  labels:
+    app: alertmanager
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9093
+      targetPort: 9093
+      name: alertmanager
+  selector:
+    app: alertmanager

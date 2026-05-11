@@ -19,10 +19,15 @@ import logging
 import sys
 import os
 
+# ── Windows UTF-8 Support ──────────────────────────────────────
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 # ── Setup logging ──────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s │ %(levelname)-7s │ %(message)s",
+    format="%(asctime)s - %(levelname)-7s - %(message)s",
     datefmt="%H:%M:%S",
     handlers=[
         logging.StreamHandler(sys.stdout),
@@ -55,6 +60,15 @@ def main():
         "--no-telegram", action="store_true",
         help="Disable Telegram bot controller"
     )
+    # Ensure UTF-8 output for Windows consoles before argparse prints help
+    try:
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        if hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
     args = parser.parse_args()
 
     # ── Load config ───────────────────────────────────────────
@@ -63,6 +77,10 @@ def main():
     broker_name = args.broker or settings.BROKER_NAME
     strategy_name = args.strategy or settings.STRATEGY_NAME
     symbols = args.symbols or settings.SYMBOLS
+
+    # ── Initialize Telemetry ───────────────────────────────────
+    from monitoring.telemetry import initialize_all
+    initialize_all()
 
     print()
     print("═" * 50)
@@ -104,6 +122,10 @@ def main():
         email_password=settings.EMAIL_PASSWORD or "",
         email_to=settings.EMAIL_TO or "",
     )
+
+    # ── Instrument Trading Engine ─────────────────────────────
+    from tracing.instrumentation import instrument_trading_engine_methods
+    instrument_trading_engine_methods()
 
     # ── Start Telegram Bot Controller ─────────────────────────
     if not args.no_telegram and settings.TELEGRAM_BOT_TOKEN:

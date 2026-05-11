@@ -1,0 +1,22 @@
+{
+  "goal": "Restructure and organize the repository by consolidating logic under quantumtrade/ (canonical), while keeping backward compatibility via re-export stubs.",
+  "strategy": {
+    "canonical_root": "quantumtrade/",
+    "compatibility": "Convert old top-level packages into re-export-only stubs instead of deleting modules immediately.",
+    "import_policy": "New code imports from quantumtrade; legacy imports remain functional via stubs."
+  },
+  "migration_order": [
+    "tracing -> quantumtrade/infrastructure/tracing",
+    "utils/logger -> quantumtrade/infrastructure/logging",
+    "risk -> quantumtrade/domain/risk",
+    "strategy -> quantumtrade/domain/strategy",
+    "brokers -> quantumtrade/adapters/brokers",
+    "tests -> quantumtrade/tests (mirror)"
+  ],
+  "verification": [
+    "python -m compileall .",
+    "pytest -q"
+  ],
+  "notes": "Repo already has both old and new structures. This plan consolidates without breaking run.py/GUI/Telegram by providing stubs first."
+}
+

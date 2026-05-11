@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from strategies.base_strategy import SMAStrategy
+from strategy.sma_strategy import SMAStrategy
 
 def test_sma_strategy():
     # Create fake data

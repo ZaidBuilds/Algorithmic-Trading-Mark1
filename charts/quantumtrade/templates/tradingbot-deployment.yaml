@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "quantumtrade.fullname" . }}-tradingbot
+  labels:
+    {{- include "quantumtrade.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount.tradingbot }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "quantumtrade.name" . }}-tradingbot
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "quantumtrade.name" . }}-tradingbot
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: tradingbot
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "quantumtrade.fullname" . }}-config
+                  key: LOG_LEVEL
+            - name: ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "quantumtrade.fullname" . }}-config
+                  key: ENVIRONMENT
+            - name: TRADING_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "quantumtrade.fullname" . }}-config
+                  key: TRADING_ENABLED
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "quantumtrade.fullname" . }}-config
+                  key: POSTGRES_HOST
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "quantumtrade.fullname" . }}-config
+                  key: REDIS_HOST
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

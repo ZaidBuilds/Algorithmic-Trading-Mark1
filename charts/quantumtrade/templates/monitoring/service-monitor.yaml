@@ -1,0 +1,21 @@
+{{- if .Values.monitoring.prometheus.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "quantumtrade.fullname" . }}
+  labels:
+    {{- include "quantumtrade.labels" . | nindent 4 }}
+    app.kubernetes.io/component: service-monitor
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      monitoring.coreos.com/enabled: "true"
+  endpoints:
+    - port: http
+      interval: {{ .Values.monitoring.prometheus.serviceMonitor.interval }}
+      scrapeTimeout: {{ .Values.monitoring.prometheus.serviceMonitor.scrapeTimeout }}
+  namespaceSelector:
+    matchNames:
+      - {{ .Values.namespace.name | default .Release.Name }}
+{{- end }}

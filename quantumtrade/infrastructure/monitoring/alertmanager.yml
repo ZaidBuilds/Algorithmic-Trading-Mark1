@@ -1,0 +1,132 @@
+global:
+  resolve_timeout: 5m
+  telegram_bot:
+    api_url: https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN
+
+route:
+  group_by: ['alertname', 'severity']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'telegram-critical'
+  routes:
+  - match:
+      severity: critical
+    receiver: 'telegram-critical'
+    continue: false
+  - match:
+      severity: warning
+    receiver: 'discord-warnings'
+
+receivers:
+- name: 'telegram-critical'
+  telegram_configs:
+  - bot_token: '${TELEGRAM_BOT_TOKEN}'
+    chat_id: '${TELEGRAM_CHAT_ID}'
+    message: |
+      {{ range .Alerts }}{{ .Annotations.description }}
+      Alert: {{ .Labels.alertname }} - {{ .Status }}
+      Severity: {{ .Labels.severity }}
+      {{ end }}
+
+- name: 'discord-warnings'
+  discord_configs:
+  - webhook_url: '${DISCORD_WEBHOOK_URL}'
+    message: |
+      {{ range .Alerts }}⚠️ **{{ .Labels.alertname }}** - {{ .Status }}
+      {{ .Annotations.description }}
+      {{ end }}
+
+- name: 'email-notifications'
+  email_configs:
+  - to: '${EMAIL_TO}'
+    from: 'alertmanager@quantumtrade.local'
+    smarthost: '${EMAIL_SMTP_HOST}:${EMAIL_SMTP_PORT}'
+    auth_username: '${EMAIL_USER}'
+    auth_password: '${EMAIL_PASSWORD}'
+
+# Inhibit rules to prevent duplicate alerts
+inhibit_rules:
+- source_match:
+    severity: 'critical'
+  target_match:
+    severity: 'warning'
+  equal: ['alertname']
+
+---
+# Prometheus Rule File
+# Save as monitoring/rules.yml
+groups:
+- name: quantumtrade_alerts
+  rules:
+  - alert: BrokerDisconnected
+    expr: quantumtrade_broker_connection_status == 0
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Broker {{ $labels.broker }} disconnected"
+      description: "Broker {{ $labels.broker }} has been disconnected for more than 30 seconds"
+
+  - alert: DailyLossLimitBreached
+    expr: quantumtrade_daily_pnl_usd < -2000
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Daily loss limit breached: ${{ $value }}"
+      description: "Daily P&L has dropped below -$2000 threshold"
+
+  - alert: HighOrderLatency
+    expr: histogram_quantile(0.95, quantumtrade_order_latency_seconds_bucket) > 1.0
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "95th percentile order latency > 1s"
+      description: "Order execution latency is above acceptable threshold"
+
+  - alert: PositionTrackingMismatch
+    expr: abs(portfolio_value_usd - broker_portfolio_value_usd) / portfolio_value_usd > 0.01
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Position tracking mismatch detected"
+      description: "Local portfolio value differs from broker by more than 1%"
+
+  - alert: DatabaseConnectionFailed
+    expr: up{job="quantumtrade"} == 0
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Database connection failed"
+      description: "Cannot connect to the primary database"
+
+  - alert: RedisDown
+    expr: redis_up == 0
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Redis is down"
+      description: "Cannot connect to Redis message bus"
+
+  - alert: HighMemoryUsage
+    expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High memory usage"
+      description: "System memory usage above 90%"
+
+  - alert: LowDiskSpace
+    expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Low disk space"
+      description: "Available disk space below 10%"

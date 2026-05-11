@@ -1,0 +1,40 @@
+{{- if .Values.mlflow.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "quantumtrade.fullname" . }}-mlflow
+  labels:
+    {{- include "quantumtrade.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount.mlflow }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "quantumtrade.name" . }}-mlflow
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "quantumtrade.name" . }}-mlflow
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: mlflow
+          image: "bitnami/mlflow:2"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.mlflow.port }}
+          env:
+            - name: BACKEND_STORE_URI
+              value: "sqlite:///mlflow.db"
+            - name: ARTIFACT_ROOT
+              value: "{{ .Values.mlflow.artifactPath }}"
+          volumeMounts:
+            - name: mlflow-data
+              mountPath: {{ .Values.mlflow.artifactPath }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: mlflow-data
+          persistentVolumeClaim:
+            claimName: {{ include "quantumtrade.fullname" . }}-mlflow-pvc
+{{- end }}

@@ -1,0 +1,46 @@
+{{- if .Values.monitoring.alertmanager.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "quantumtrade.fullname" . }}-alertmanager
+  labels:
+    {{- include "quantumtrade.labels" . | nindent 4 }}
+    app.kubernetes.io/component: alertmanager
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.monitoring.alertmanager.port }}
+      targetPort: {{ .Values.monitoring.alertmanager.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "quantumtrade.name" . }}-alertmanager
+    app.kubernetes.io/instance: {{ .Release.Name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "quantumtrade.fullname" . }}-alertmanager
+  labels:
+    {{- include "quantumtrade.labels" . | nindent 4 }}
+    app.kubernetes.io/component: alertmanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "quantumtrade.name" . }}-alertmanager
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "quantumtrade.name" . }}-alertmanager
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: alertmanager
+          image: prom/alertmanager:v0.26.0
+          ports:
+            - containerPort: {{ .Values.monitoring.alertmanager.port }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+{{- end }}

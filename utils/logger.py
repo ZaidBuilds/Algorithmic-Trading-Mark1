@@ -52,6 +52,13 @@ def setup_logger(
         datefmt='%H:%M:%S'
     )
     
+    # Ensure the console stream supports UTF-8 on Windows
+    try:
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(getattr(logging, console_level.upper()))

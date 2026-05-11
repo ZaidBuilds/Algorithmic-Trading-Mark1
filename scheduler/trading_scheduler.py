@@ -27,6 +27,17 @@ import threading
 from datetime import datetime
 from typing import Callable, Dict, List, Optional
 
+# Import metrics (optional)
+try:
+    from monitoring.metrics import (
+        SCHEDULER_TICKS_TOTAL,
+        SCHEDULER_ERRORS_TOTAL,
+        MARKET_SESSION_TRANSITIONS_TOTAL,
+    )
+    METRICS_AVAILABLE = True
+except ImportError:
+    METRICS_AVAILABLE = False
+
 from .market_hours import MarketHours, MarketSession, MarketType, is_market_open
 
 logger = logging.getLogger(__name__)
@@ -167,11 +178,21 @@ class TradingScheduler:
                 logger.error(f"Tick callback error: {e}")
                 self._fire("error", error=e)
 
+        # Record tick metric
+        if METRICS_AVAILABLE:
+            SCHEDULER_TICKS_TOTAL.inc()
+
     def _check_session_transitions(self, current: MarketSession) -> None:
         """Detect and fire session transition events."""
         prev = self._last_session
 
         if prev != current:
+            if METRICS_AVAILABLE:
+                MARKET_SESSION_TRANSITIONS_TOTAL.labels(
+                    from_session=prev.value if prev else "none",
+                    to_session=current.value
+                ).inc()
+
             if current == MarketSession.REGULAR and prev != MarketSession.REGULAR:
                 logger.info("🔔 Market OPEN")
                 self._fire("market_open")

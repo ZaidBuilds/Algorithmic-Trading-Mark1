@@ -14,8 +14,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 from data.loader import DataLoader
 from data.validator import DataValidator
 from strategy.ema_crossover import EMACrossoverStrategy
-from backtest.engine import BacktestEngine
-from backtest.reporter import BacktestReporter
+from quantumtrade.backtesting.engine import BacktestEngine
+from quantumtrade.backtesting.reporter import BacktestReporter
 import logging
 
 # Set up logging

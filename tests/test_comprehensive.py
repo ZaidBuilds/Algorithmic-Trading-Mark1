@@ -23,11 +23,11 @@ from strategy import (
     SMAStrategy,
     RSIStrategy,
     MACDStrategy,
-    BollingerBandsStrategy
+    BollingerBandsStrategy,
 )
 from strategy.signals import Signal, SignalType
-from src.backtesting.engine import BacktestEngine
-from src.backtesting.metrics import BacktestMetrics, Trade
+from quantumtrade.backtesting.engine import BacktestEngine
+from quantumtrade.backtesting.metrics import BacktestMetrics, Trade
 from execution.broker_client import PaperBroker
 from risk.risk_manager import RiskManager
 
